@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Průvodce výběrem zábrany | Monkey Mum',
@@ -26,7 +27,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

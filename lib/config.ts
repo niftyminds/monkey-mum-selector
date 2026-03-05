@@ -1,5 +1,15 @@
 import { FormStep } from '@/types/form';
 
+export const LENGTH_OPTIONS = [80, 90, 100, 120, 130, 140, 150, 160, 180, 190, 200];
+
+export const SLEEP_POSITION_SIDES_MAP: Record<string, number> = {
+  'u-zdi': 1,
+  'uprostred': 2,
+  'aktivni': 3,
+  'bez-cela': 4,
+  'nevim': 1,
+};
+
 export const FORM_STEPS: FormStep[] = [
   {
     id: 'bedType',
@@ -7,86 +17,83 @@ export const FORM_STEPS: FormStep[] = [
     type: 'radio',
     required: true,
     options: [
-      { value: 'detska-postel', label: 'Dětská postel' },
-      { value: 'manzelska-postel', label: 'Manželská postel' },
-      { value: 'jednoluzko', label: 'Jednolůžko pro dospělého' },
-      { value: 'jiny-typ', label: 'Jiný typ / nejsem si jistý' },
+      { value: 'klasicka', label: 'Klasická postel', description: 'Standardní postel s rámem a matrací' },
+      { value: 'vyklopna', label: 'Výklopná postel', description: 'Postel s úložným prostorem pod matrací' },
+      { value: 'boxspring', label: 'Boxspring', description: 'Vysoká postel s pružinovým základem' },
+      { value: 'valenda', label: 'Valenda / gauč', description: 'Rozkládací řešení' },
+      { value: 'jiny', label: 'Jiný typ', description: 'Žádná z výše uvedených možností' },
     ],
   },
   {
-    id: 'length',
-    label: 'Jaká je délka strany k ochraně?',
-    type: 'select',
-    required: true,
-    options: [
-      { value: '80', label: '80 cm' },
-      { value: '90', label: '90 cm' },
-      { value: '100', label: '100 cm' },
-      { value: '120', label: '120 cm' },
-      { value: '130', label: '130 cm' },
-      { value: '140', label: '140 cm' },
-      { value: '150', label: '150 cm' },
-      { value: '160', label: '160 cm' },
-      { value: '180', label: '180 cm' },
-      { value: '190', label: '190 cm' },
-      { value: '200', label: '200 cm' },
-      { value: 'nevim', label: 'Nevím přesně' },
-    ],
-  },
-  {
-    id: 'sides',
-    label: 'Kolik stran postele chcete chránit?',
+    id: 'sleepPosition',
+    label: 'Kde v posteli dítě spí?',
     type: 'radio',
     required: true,
     options: [
-      { value: 'jedna', label: '1 strana' },
-      { value: 'dve', label: '2 strany' },
-      { value: 'vice', label: 'Více stran / okolo celé postele' },
+      { value: 'u-zdi', label: 'U zdi', description: 'Potřebuji chránit 1 stranu' },
+      { value: 'uprostred', label: 'Uprostřed', description: 'Potřebuji chránit 2 strany' },
+      { value: 'aktivni', label: 'Aktivní spáč — všude', description: 'Potřebuji chránit 3 strany' },
+      { value: 'bez-cela', label: 'Postel bez čela', description: 'Potřebuji chránit 4 strany' },
+      { value: 'nevim', label: 'Nevím / nechám si poradit', description: 'Doporučíme 1 stranu' },
     ],
   },
   {
-    id: 'period',
-    label: 'V jakém období se nachází vaše dítě?',
-    type: 'select',
+    id: 'lengths',
+    label: 'Jaká je délka strany (stran) k ochraně?',
+    type: 'multi-length',
     required: true,
     options: [
-      { value: 'sestinedeli', label: 'Šestinedělí' },
-      { value: 'prvni-rok', label: 'První rok s miminkem' },
-      { value: 'dva-tri-roky', label: 'Dva až tři roky s batoletem' },
-      { value: 'starsi-3-roky', label: 'Starší než 3 roky' },
+      ...LENGTH_OPTIONS.map((l) => ({ value: String(l), label: `${l} cm` })),
+      { value: 'jine', label: 'Jiné' },
     ],
   },
   {
-    id: 'activity',
+    id: 'age',
+    label: 'Kolik je vašemu dítěti?',
+    type: 'radio',
+    required: true,
+    options: [
+      { value: '0-3', label: '0–3 roky', description: 'Miminko nebo batole' },
+      { value: '3-plus', label: '3+ roky', description: 'Předškolák a starší' },
+      { value: 'jine', label: 'Jiné / nevím' },
+    ],
+  },
+  {
+    id: 'usage',
     label: 'Jak budete zábranu používat?',
     type: 'radio',
     required: true,
     options: [
-      { value: 'doma', label: 'Pouze doma (spánek)', description: 'Zábrana bude pevně nainstalovaná' },
-      { value: 'cestovani', label: 'Často na cestách', description: 'Potřebuji snadnou přenosnost' },
+      { value: 'pouze-doma', label: 'Pouze doma', description: 'Zábrana bude pevně nainstalovaná' },
+      { value: 'doma-i-cesty', label: 'Doma i na cesty', description: 'Občas potřebuji vzít s sebou' },
+      { value: 'pouze-cesty', label: 'Pouze na cesty', description: 'Potřebuji přenosné řešení' },
+      { value: 'jine', label: 'Jiné / nevím' },
     ],
   },
   {
-    id: 'preference',
-    label: 'Jaký typ zábrany preferujete?',
+    id: 'priority',
+    label: 'Co je pro vás nejdůležitější?',
     type: 'radio',
     required: true,
     options: [
-      { value: 'necham-poradit', label: 'Nechám si poradit', description: 'Doporučíme nejlepší řešení' },
-      { value: 'premium', label: 'Prémiové řešení', description: 'Nejvyšší kvalita a komfort' },
-      { value: 'popular', label: 'Poměr cena / výkon', description: 'Nejoblíbenější volba' },
-      { value: 'economy', label: 'Co nejnižší cena', description: 'Základní ochrana za skvělou cenu' },
+      { value: 'bez-vrtani', label: 'Bez vrtání', description: 'Snadná instalace bez poškození postele' },
+      { value: 'stabilita', label: 'Maximální stabilita', description: 'Nejpevnější uchycení' },
+      { value: 'premium', label: 'Prémiová kvalita', description: 'Nejlepší materiály a design' },
+      { value: 'pomer-cena-vykon', label: 'Poměr cena/výkon', description: 'Nejlepší hodnota za peníze' },
+      { value: 'nejnizsi-cena', label: 'Nejnižší cena', description: 'Co nejlevnější řešení' },
     ],
   },
   {
-    id: 'budget',
-    label: 'Jaký máte rozpočet?',
-    type: 'radio',
-    required: true,
+    id: 'crossSell',
+    label: 'Zajímá vás ještě něco dalšího? (volitelné)',
+    type: 'checkbox',
+    required: false,
+    multiSelect: true,
     options: [
-      { value: 'neresim', label: 'Neřeším cenu' },
-      { value: 'do-1500', label: 'Do 1 500 Kč' },
-      { value: 'nad-1500', label: 'Nad 1 500 Kč' },
+      { value: 'schodiste', label: 'Zábrana na schodiště' },
+      { value: 'dvere', label: 'Zábrana do dveří' },
+      { value: 'ohradka', label: 'Dětská ohrádka' },
+      { value: 'stolovani', label: 'Židlička na stolování' },
     ],
   },
 ];
@@ -101,11 +108,4 @@ export const LEAD_CAPTURE_TEXTS = {
   gdprLink: 'Zásady ochrany osobních údajů',
   successMessage: 'Hotovo! Doporučení je na cestě do vaší schránky.',
   errorMessage: 'Něco se pokazilo. Zkuste to prosím znovu.',
-};
-
-export const PERIOD_MAP: Record<string, string> = {
-  'sestinedeli': 'Šestinedělí',
-  'prvni-rok': 'První rok s miminkem',
-  'dva-tri-roky': 'Dva až tři roky s batoletem',
-  'starsi-3-roky': 'Starší než 3 roky',
 };

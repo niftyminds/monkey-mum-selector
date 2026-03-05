@@ -1,208 +1,194 @@
-import { Product, Period as ProductPeriod } from '@/types/product';
-import { FormData } from '@/types/form';
+import { Product } from '@/types/product';
+import { FormData, SideLength } from '@/types/form';
 import { FALLBACK_PRODUCTS } from './products';
-import { PERIOD_MAP } from './config';
+
+export interface SideRecommendation {
+  sideIndex: number;
+  requestedLength: number;
+  product: Product;
+}
 
 export interface RecommendationResult {
-  primary: Product;
-  alternatives: Product[];
+  sides: SideRecommendation[];
+  alternativeType: Product | null;
   message: string;
+  totalPrice: number;
 }
 
-function mapFormPeriodToProductPeriod(formPeriod: string): ProductPeriod {
-  return PERIOD_MAP[formPeriod] as ProductPeriod;
+function getEffectiveLength(side: SideLength): number {
+  if (side.length === 'jine') {
+    return side.customLength || 150;
+  }
+  return side.length;
 }
 
-function getDesiredLength(formLength: string): number | null {
-  if (formLength === 'nevim') {
-    return null;
+function determineProductType(formData: FormData): string {
+  // Usage takes priority for travel
+  if (formData.usage === 'pouze-cesty') return 'Cestovní';
+
+  // Priority determines type
+  switch (formData.priority) {
+    case 'premium':
+    case 'stabilita':
+      return 'Premium';
+    case 'pomer-cena-vykon':
+    case 'bez-vrtani':
+      return 'Popular';
+    case 'nejnizsi-cena':
+      return 'Economy';
+    default:
+      return 'Popular';
   }
-  return parseInt(formLength, 10);
 }
 
-function filterByLength(products: Product[], desiredLength: number | null): Product[] {
-  if (desiredLength === null) {
-    // If unknown, return products sorted by length (medium first)
-    return [...products].sort((a, b) => {
-      const targetLength = 150;
-      return Math.abs(a.params.length - targetLength) - Math.abs(b.params.length - targetLength);
-    });
-  }
+function findBestProduct(
+  products: Product[],
+  targetType: string,
+  requestedLength: number
+): Product | null {
+  const typeProducts = products.filter((p) => p.params.type === targetType);
+  if (typeProducts.length === 0) return null;
 
-  // First try exact match
-  const exactMatch = products.filter((p) => p.params.length === desiredLength);
-  if (exactMatch.length > 0) {
-    return exactMatch;
-  }
+  // Exact match
+  const exact = typeProducts.find((p) => p.params.length === requestedLength);
+  if (exact) return exact;
 
-  // Then try closest longer variant
-  const longerProducts = products
-    .filter((p) => p.params.length >= desiredLength)
+  // Closest longer
+  const longer = typeProducts
+    .filter((p) => p.params.length >= requestedLength)
     .sort((a, b) => a.params.length - b.params.length);
+  if (longer.length > 0) return longer[0];
 
-  if (longerProducts.length > 0) {
-    return longerProducts;
+  // Closest shorter
+  const shorter = typeProducts
+    .sort((a, b) => b.params.length - a.params.length);
+  return shorter[0] || null;
+}
+
+function findAlternativeProduct(
+  products: Product[],
+  primaryType: string,
+  requestedLength: number,
+  formData: FormData
+): Product | null {
+  // Pick a different type as alternative
+  let altType: string;
+  if (primaryType === 'Premium') {
+    altType = 'Popular';
+  } else if (primaryType === 'Popular') {
+    altType = 'Premium';
+  } else if (primaryType === 'Economy') {
+    altType = 'Popular';
+  } else if (primaryType === 'Cestovní') {
+    altType = 'Popular';
+  } else {
+    altType = 'Popular';
   }
 
-  // Fallback: closest shorter variant
-  return [...products].sort((a, b) => {
-    return Math.abs(a.params.length - desiredLength) - Math.abs(b.params.length - desiredLength);
-  });
-}
-
-function filterByPeriod(products: Product[], period: string): Product[] {
-  const productPeriod = mapFormPeriodToProductPeriod(period);
-  if (!productPeriod) return products;
-
-  const filtered = products.filter((p) => p.params.periods.includes(productPeriod));
-  return filtered.length > 0 ? filtered : products;
-}
-
-function filterByActivity(products: Product[], activity: string): Product[] {
-  if (activity === 'cestovani') {
-    // Prefer travel products, but don't exclude others
-    const travelProducts = products.filter((p) => p.params.activity.includes('Cestování'));
-    if (travelProducts.length > 0) {
-      return travelProducts;
-    }
+  // If usage includes travel, offer travel as alternative
+  if (formData.usage === 'doma-i-cesty' && primaryType !== 'Cestovní') {
+    const travelProduct = findBestProduct(products, 'Cestovní', requestedLength);
+    if (travelProduct) return travelProduct;
   }
-  return products;
+
+  return findBestProduct(products, altType, requestedLength);
 }
 
-function filterByBudget(products: Product[], budget: string): Product[] {
-  if (budget === 'do-1500') {
-    const filtered = products.filter((p) => p.price <= 1500);
-    return filtered.length > 0 ? filtered : products;
-  }
-  if (budget === 'nad-1500') {
-    const filtered = products.filter((p) => p.price > 1500);
-    return filtered.length > 0 ? filtered : products;
-  }
-  return products;
-}
-
-function sortByPreference(products: Product[], preference: string): Product[] {
-  const typeOrder: Record<string, number> = {
-    Premium: 1,
-    Popular: 2,
-    Cestovní: 3,
-    Economy: 4,
-  };
-
-  return [...products].sort((a, b) => {
-    if (preference === 'premium') {
-      // Premium first, then by price descending
-      if (a.params.type === 'Premium' && b.params.type !== 'Premium') return -1;
-      if (b.params.type === 'Premium' && a.params.type !== 'Premium') return 1;
-      return b.price - a.price;
-    }
-
-    if (preference === 'popular') {
-      // Popular first, then by price
-      if (a.params.type === 'Popular' && b.params.type !== 'Popular') return -1;
-      if (b.params.type === 'Popular' && a.params.type !== 'Popular') return 1;
-      return a.price - b.price;
-    }
-
-    if (preference === 'economy') {
-      // Sort by price ascending
-      return a.price - b.price;
-    }
-
-    // Default: Popular > Premium > Cestovní > Economy, then by price
-    const orderA = typeOrder[a.params.type] || 5;
-    const orderB = typeOrder[b.params.type] || 5;
-    if (orderA !== orderB) return orderA - orderB;
-    return a.price - b.price;
-  });
-}
-
-function filterByMultipleSides(products: Product[], sides: string): Product[] {
-  if (sides === 'vice') {
-    const filtered = products.filter((p) => p.params.supportsMultipleSides);
-    return filtered.length > 0 ? filtered : products;
-  }
-  return products;
-}
-
-export function getRecommendations(formData: FormData, sourceProducts?: Product[]): RecommendationResult {
-  let products = [...(sourceProducts || FALLBACK_PRODUCTS)];
-
-  // 1. Filter by activity (cestování vs doma)
-  products = filterByActivity(products, formData.activity);
-
-  // 2. Filter by period
-  products = filterByPeriod(products, formData.period);
-
-  // 3. Filter by budget
-  products = filterByBudget(products, formData.budget);
-
-  // 4. Filter by multiple sides support
-  products = filterByMultipleSides(products, formData.sides);
-
-  // 5. Filter by length
-  const desiredLength = getDesiredLength(formData.length);
-  products = filterByLength(products, desiredLength);
-
-  // 6. Sort by preference
-  products = sortByPreference(products, formData.preference);
-
-  // Get primary and alternatives
-  const primary = products[0];
-  const alternatives = products.slice(1, 4);
-
-  // Generate message
-  let message = generateMessage(primary, formData);
-
-  return {
-    primary,
-    alternatives,
-    message,
-  };
-}
-
-function generateMessage(product: Product, formData: FormData): string {
+function generateMessage(productType: string, formData: FormData): string {
   const messages: string[] = [];
 
-  if (formData.activity === 'cestovani' && product.params.type === 'Cestovní') {
+  if (productType === 'Cestovní') {
     messages.push('Ideální volba pro rodiny, které často cestují.');
-  } else if (product.params.type === 'Premium') {
+  } else if (productType === 'Premium') {
     messages.push('Prémiová kvalita pro maximální bezpečí a komfort.');
-  } else if (product.params.type === 'Popular') {
+  } else if (productType === 'Popular') {
     messages.push('Nejoblíbenější volba s perfektním poměrem ceny a výkonu.');
-  } else if (product.params.type === 'Economy') {
+  } else if (productType === 'Economy') {
     messages.push('Spolehlivá ochrana za výbornou cenu.');
   }
 
-  if (formData.sides === 'vice') {
-    messages.push('Můžete kombinovat více zábran pro kompletní ochranu.');
+  if (formData.lengths.length > 1) {
+    messages.push(`Připravili jsme nákupní seznam pro ${formData.lengths.length} strany vaší postele.`);
   }
 
   return messages.join(' ');
 }
 
-export function generateTags(formData: FormData, product: Product): string[] {
+export function getRecommendations(formData: FormData, sourceProducts?: Product[]): RecommendationResult {
+  const products = sourceProducts || FALLBACK_PRODUCTS;
+  const targetType = determineProductType(formData);
+  const sides: SideRecommendation[] = [];
+
+  // For each side, find the best product
+  for (const side of formData.lengths) {
+    const requestedLength = getEffectiveLength(side);
+    let product = findBestProduct(products, targetType, requestedLength);
+
+    // Fallback: try any type
+    if (!product) {
+      product = findBestProduct(products, 'Popular', requestedLength)
+        || findBestProduct(products, 'Premium', requestedLength)
+        || findBestProduct(products, 'Economy', requestedLength)
+        || products[0];
+    }
+
+    if (product) {
+      sides.push({
+        sideIndex: side.sideIndex,
+        requestedLength,
+        product,
+      });
+    }
+  }
+
+  // Find alternative of different type
+  const firstLength = sides.length > 0 ? sides[0].requestedLength : 150;
+  const alternativeType = findAlternativeProduct(products, targetType, firstLength, formData);
+
+  const totalPrice = sides.reduce((sum, s) => sum + s.product.price, 0);
+  const message = generateMessage(targetType, formData);
+
+  return {
+    sides,
+    alternativeType,
+    message,
+    totalPrice,
+  };
+}
+
+export function generateTags(formData: FormData, sides: SideRecommendation[]): string[] {
   const tags: string[] = ['monkey-mum-selector'];
 
-  // Product tag
-  const productTag = `zabrana-${product.params.type.toLowerCase()}-${product.params.length}`;
-  tags.push(productTag);
-
-  // Period tag
-  const periodTagMap: Record<string, string> = {
-    'sestinedeli': 'obdobi-sestinedeli',
-    'prvni-rok': 'obdobi-prvni-rok',
-    'dva-tri-roky': 'obdobi-dva-tri-roky',
-    'starsi-3-roky': 'obdobi-starsi-3-roky',
-  };
-  if (formData.period && periodTagMap[formData.period]) {
-    tags.push(periodTagMap[formData.period]);
+  // Product tags
+  for (const side of sides) {
+    const productTag = `zabrana-${side.product.params.type.toLowerCase()}-${side.product.params.length}`;
+    if (!tags.includes(productTag)) {
+      tags.push(productTag);
+    }
   }
 
-  // Activity tag
-  if (formData.activity === 'cestovani') {
-    tags.push('aktivita-cestovani');
+  // Age tag
+  if (formData.age) {
+    tags.push(`vek-${formData.age}`);
   }
+
+  // Usage tag
+  if (formData.usage) {
+    tags.push(`pouziti-${formData.usage}`);
+  }
+
+  // Priority tag
+  if (formData.priority) {
+    tags.push(`priorita-${formData.priority}`);
+  }
+
+  // Cross-sell tags
+  for (const cs of formData.crossSell) {
+    tags.push(`cross-sell-${cs}`);
+  }
+
+  // Side count
+  tags.push(`strany-${formData.lengths.length}`);
 
   return tags;
 }

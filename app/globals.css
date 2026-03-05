@@ -1,21 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf8f4;
+  --foreground: #422a0d;
 }
 
 @theme inline {
-  --color-primary-50: #fffbeb;
-  --color-primary-100: #fef3c7;
-  --color-primary-200: #fde68a;
-  --color-primary-300: #fcd34d;
-  --color-primary-400: #fbbf24;
-  --color-primary-500: #f59e0b;
-  --color-primary-600: #d97706;
-  --color-primary-700: #b45309;
-  --color-primary-800: #92400e;
-  --color-primary-900: #78350f;
+  /* Monkey Mum brand palette — warm browns & tan/gold */
+  --color-primary-50: #faf8f4;
+  --color-primary-100: #f6f0ea;
+  --color-primary-200: #ede2d4;
+  --color-primary-300: #d0be95;
+  --color-primary-400: #b8a06e;
+  --color-primary-500: #926a3a;
+  --color-primary-600: #6b4a22;
+  --color-primary-700: #523812;
+  --color-primary-800: #422a0d;
+  --color-primary-900: #281a08;
 }
 
 body {
@@ -31,16 +32,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f6f0ea;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #d0be95;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: #b8a06e;
 }
 
 /* Focus styles */
@@ -53,4 +54,53 @@ body {
 ::selection {
   background-color: var(--color-primary-200);
   color: var(--color-primary-900);
+}
+
+/* Floating button animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out both;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out both;
 }

@@ -1,8 +1,7 @@
 'use client';
 
-import { Product } from '@/types/product';
 import { FormData } from '@/types/form';
-import { RecommendationResult } from '@/lib/recommendations';
+import { RecommendationResult, SideRecommendation } from '@/lib/recommendations';
 import ProductCard from './ProductCard';
 import LeadCaptureForm from './LeadCaptureForm';
 
@@ -12,11 +11,49 @@ interface ResultsSectionProps {
   onRestart: () => void;
 }
 
+interface GroupedItem {
+  product: SideRecommendation['product'];
+  requestedLength: number;
+  count: number;
+  sideIndices: number[];
+}
+
+function groupSides(sides: SideRecommendation[]): GroupedItem[] {
+  const groups: GroupedItem[] = [];
+  for (const side of sides) {
+    const existing = groups.find((g) => g.product.id === side.product.id);
+    if (existing) {
+      existing.count++;
+      existing.sideIndices.push(side.sideIndex + 1);
+    } else {
+      groups.push({
+        product: side.product,
+        requestedLength: side.requestedLength,
+        count: 1,
+        sideIndices: [side.sideIndex + 1],
+      });
+    }
+  }
+  return groups;
+}
+
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('cs-CZ', {
+    style: 'currency',
+    currency: 'CZK',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price);
+};
+
 export default function ResultsSection({ result, formData, onRestart }: ResultsSectionProps) {
-  const { primary, alternatives, message } = result;
+  const { sides, alternativeType, message, totalPrice } = result;
+  const grouped = groupSides(sides);
+  const heroItem = grouped[0];
+  const secondaryItems = grouped.slice(1);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-primary-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -35,46 +72,62 @@ export default function ResultsSection({ result, formData, onRestart }: ResultsS
               />
             </svg>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary-800 mb-2">
             Máme pro vás doporučení!
           </h1>
-          {message && <p className="text-gray-600 max-w-xl mx-auto">{message}</p>}
+          {message && <p className="text-primary-600 max-w-xl mx-auto">{message}</p>}
         </div>
 
-        {/* Lead capture - moved to top */}
-        <div className="mb-8">
-          <LeadCaptureForm
-            recommendedProduct={primary}
-            alternatives={alternatives}
-            formData={formData}
-          />
-        </div>
+        {/* Hero product (first/primary) */}
+        {heroItem && (
+          <div className="mb-6">
+            <ProductCard
+              product={heroItem.product}
+              isPrimary
+              quantity={heroItem.count}
+              sideIndices={heroItem.sideIndices}
+            />
+          </div>
+        )}
 
-        {/* Primary recommendation */}
-        <div className="mb-8">
-          <ProductCard product={primary} isPrimary />
-        </div>
+        {/* Secondary products — 2-column grid */}
+        {secondaryItems.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            {secondaryItems.map((item, i) => (
+              <ProductCard
+                key={`${item.product.id}-${i}`}
+                product={item.product}
+                quantity={item.count}
+                sideIndices={item.sideIndices}
+              />
+            ))}
+          </div>
+        )}
 
-        {/* Alternatives - show exactly 2 products */}
-        {alternatives.length > 0 && (
+        {/* Total price */}
+        {sides.length > 1 && (
+          <div className="mb-6 p-4 bg-white rounded-xl border border-primary-200 flex items-center justify-between">
+            <span className="font-semibold text-primary-800">Celkem</span>
+            <span className="text-2xl font-bold text-primary-800">{formatPrice(totalPrice)}</span>
+          </div>
+        )}
+
+        {/* Alternative */}
+        {alternativeType && (
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Další možnosti</h2>
-            <div className="grid grid-cols-2 gap-4">
-              {alternatives.slice(0, 2).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <h2 className="text-lg font-semibold text-primary-800 mb-4">Alternativa</h2>
+            <ProductCard product={alternativeType} />
           </div>
         )}
 
         {/* Restart */}
-        <div className="text-center">
+        <div className="text-center pb-20">
           <button
             onClick={onRestart}
             className="
               inline-flex items-center gap-2
-              text-gray-600 font-medium
-              hover:text-gray-900
+              text-primary-600 font-medium
+              hover:text-primary-800
               transition-colors
             "
           >
@@ -95,6 +148,13 @@ export default function ResultsSection({ result, formData, onRestart }: ResultsS
           </button>
         </div>
       </div>
+
+      {/* Floating lead capture button */}
+      <LeadCaptureForm
+        sides={sides}
+        alternativeProduct={alternativeType}
+        formData={formData}
+      />
     </div>
   );
 }

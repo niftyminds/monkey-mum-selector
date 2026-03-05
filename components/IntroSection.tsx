@@ -28,20 +28,20 @@ export default function IntroSection({ onStart }: IntroSectionProps) {
         </div>
 
         {/* Headline */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary-800 mb-4">
           Najděte správnou zábranu
           <br />
           <span className="text-primary-600">pro vaše dítě</span>
         </h1>
 
         {/* Description */}
-        <p className="text-lg text-gray-600 mb-8 max-w-xl mx-auto">
-          Zodpovězte 7 jednoduchých otázek a my vám doporučíme nejvhodnější zábranu na postel
-          Monkey Mum pro vaši konkrétní situaci.
+        <p className="text-lg text-primary-700 mb-8 max-w-xl mx-auto">
+          Pomůžeme vám vybrat bezpečnou zábranu, která přesně sedí vaší posteli a potřebám
+          vašeho dítěte — během 2 minut.
         </p>
 
         {/* Benefits */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-10 text-sm text-gray-500">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 mb-10 text-sm text-primary-600">
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -104,7 +104,7 @@ export default function IntroSection({ onStart }: IntroSectionProps) {
         </button>
 
         {/* Trust indicators */}
-        <p className="mt-8 text-sm text-gray-400">
+        <p className="mt-8 text-sm text-primary-400">
           Více než 50 000 spokojených rodičů
         </p>
       </div>

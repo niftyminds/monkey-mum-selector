@@ -1,43 +1,38 @@
-export type BedType =
-  | 'detska-postel'
-  | 'manzelska-postel'
-  | 'jednoluzko'
-  | 'jiny-typ';
+export type BedType = 'klasicka' | 'vyklopna' | 'boxspring' | 'valenda' | 'jiny';
 
-export type Sides = 'jedna' | 'dve' | 'vice';
+export type SleepPosition = 'u-zdi' | 'uprostred' | 'aktivni' | 'bez-cela' | 'nevim';
 
-export type Period =
-  | 'sestinedeli'
-  | 'prvni-rok'
-  | 'dva-tri-roky'
-  | 'starsi-3-roky';
+export interface SideLength {
+  sideIndex: number;
+  length: number | 'jine';
+  customLength?: number;
+}
 
-export type Activity = 'doma' | 'cestovani';
+export type Age = '0-3' | '3-plus' | 'jine';
 
-export type Preference =
-  | 'necham-poradit'
-  | 'premium'
-  | 'popular'
-  | 'economy';
+export type Usage = 'pouze-doma' | 'doma-i-cesty' | 'pouze-cesty' | 'jine';
 
-export type Budget = 'neresim' | 'do-1500' | 'nad-1500';
+export type Priority = 'bez-vrtani' | 'stabilita' | 'premium' | 'pomer-cena-vykon' | 'nejnizsi-cena';
+
+export type CrossSell = 'schodiste' | 'dvere' | 'ohradka' | 'stolovani';
 
 export interface FormData {
   bedType: BedType | '';
-  length: string;
-  sides: Sides | '';
-  period: Period | '';
-  activity: Activity | '';
-  preference: Preference | '';
-  budget: Budget | '';
+  sleepPosition: SleepPosition | '';
+  lengths: SideLength[];
+  age: Age | '';
+  usage: Usage | '';
+  priority: Priority | '';
+  crossSell: CrossSell[];
 }
 
 export interface FormStep {
   id: keyof FormData;
   label: string;
-  type: 'radio' | 'select';
+  type: 'radio' | 'select' | 'multi-length' | 'checkbox';
   options: FormOption[];
   required: boolean;
+  multiSelect?: boolean;
 }
 
 export interface FormOption {

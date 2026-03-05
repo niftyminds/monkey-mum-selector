@@ -23,8 +23,8 @@ export default function SelectField({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className="
-        w-full p-4 rounded-lg border-2 border-gray-200 bg-white
-        text-gray-900 font-medium
+        w-full p-4 rounded-lg border-2 border-primary-200 bg-white
+        text-primary-800 font-medium
         focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none
         transition-all cursor-pointer
         appearance-none

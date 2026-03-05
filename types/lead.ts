@@ -1,12 +1,6 @@
-export interface FormAnswers {
-  bedType: string;
-  length: string;
-  sides: string;
-  period: string;
-  activity: string;
-  preference: string;
-  budget: string;
-}
+import { FormData } from '@/types/form';
+
+export type FormAnswers = FormData;
 
 export interface Lead {
   id: string;
