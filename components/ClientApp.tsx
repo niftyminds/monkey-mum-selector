@@ -12,9 +12,10 @@ type AppStep = 'intro' | 'form' | 'results';
 
 interface ClientAppProps {
   products: Product[];
+  isEmbed?: boolean;
 }
 
-export default function ClientApp({ products }: ClientAppProps) {
+export default function ClientApp({ products, isEmbed = false }: ClientAppProps) {
   const [step, setStep] = useState<AppStep>('intro');
   const [formData, setFormData] = useState<FormData | null>(null);
   const [result, setResult] = useState<RecommendationResult | null>(null);
@@ -41,7 +42,7 @@ export default function ClientApp({ products }: ClientAppProps) {
   };
 
   return (
-    <main className="min-h-screen">
+    <main className={isEmbed ? 'rounded-2xl overflow-hidden' : 'min-h-screen'}>
       {step === 'intro' && <IntroSection onStart={handleStart} />}
       {step === 'form' && (
         <FormSection onComplete={handleFormComplete} onBack={handleBackToIntro} />

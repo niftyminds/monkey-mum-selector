@@ -1,45 +1,45 @@
 export default function Footer() {
   return (
-    <footer className="bg-primary-800 text-primary-100">
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+    <footer className="bg-primary-100 text-primary-700">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
           {/* Column 1: Company */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-primary-300 mb-4">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-primary-800 mb-4">
               Společnost
             </h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="https://www.monkeymum.com/nas-tym" className="hover:text-white transition-colors">Náš tým</a></li>
-              <li><a href="https://www.monkeymum.com/kontakty" className="hover:text-white transition-colors">Kontakt</a></li>
-              <li><a href="https://www.monkeymum.com/kariera" className="hover:text-white transition-colors">Kariéra</a></li>
-              <li><a href="https://www.monkeymum.com/mlog" className="hover:text-white transition-colors">Mlog</a></li>
-              <li><a href="https://www.monkeymum.com/napsali-o-nas-1" className="hover:text-white transition-colors">Napsali o nás</a></li>
-              <li><a href="https://www.monkeymum.com/pomahame" className="hover:text-white transition-colors">Pomáháme</a></li>
+              <li><a href="https://www.monkeymum.com/nas-tym" className="hover:text-primary-800 transition-colors">Náš tým</a></li>
+              <li><a href="https://www.monkeymum.com/kontakty" className="hover:text-primary-800 transition-colors">Kontakt</a></li>
+              <li><a href="https://www.monkeymum.com/kariera" className="hover:text-primary-800 transition-colors">Kariéra</a></li>
+              <li><a href="https://www.monkeymum.com/mlog" className="hover:text-primary-800 transition-colors">Mlog</a></li>
+              <li><a href="https://www.monkeymum.com/napsali-o-nas-1" className="hover:text-primary-800 transition-colors">Napsali o nás</a></li>
+              <li><a href="https://www.monkeymum.com/pomahame" className="hover:text-primary-800 transition-colors">Pomáháme</a></li>
             </ul>
           </div>
 
           {/* Column 2: Shopping info */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-primary-300 mb-4">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-primary-800 mb-4">
               Vše o nákupu
             </h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="https://www.monkeymum.com/obchodni-podminky" className="hover:text-white transition-colors">Obchodní podmínky</a></li>
-              <li><a href="https://www.monkeymum.com/formular-pro-uplatneni-reklamace" className="hover:text-white transition-colors">Uplatnění reklamace</a></li>
-              <li><a href="https://www.monkeymum.com/formular-pro-odstoupeni-od-smlouvy" className="hover:text-white transition-colors">Odstoupení od smlouvy</a></li>
-              <li><a href="https://www.monkeymum.com/vernostni-program" className="hover:text-white transition-colors">Věrnostní program</a></li>
+              <li><a href="https://www.monkeymum.com/obchodni-podminky" className="hover:text-primary-800 transition-colors">Obchodní podmínky</a></li>
+              <li><a href="https://www.monkeymum.com/formular-pro-uplatneni-reklamace" className="hover:text-primary-800 transition-colors">Uplatnění reklamace</a></li>
+              <li><a href="https://www.monkeymum.com/formular-pro-odstoupeni-od-smlouvy" className="hover:text-primary-800 transition-colors">Odstoupení od smlouvy</a></li>
+              <li><a href="https://www.monkeymum.com/vernostni-program" className="hover:text-primary-800 transition-colors">Věrnostní program</a></li>
             </ul>
           </div>
 
           {/* Column 3: Contact */}
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-primary-300 mb-4">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-primary-800 mb-4">
               Nevíte si s něčím rady?
             </h3>
             <div className="space-y-3 text-sm">
               <a
                 href="mailto:informace@monkeymum.com"
-                className="flex items-center gap-2 hover:text-white transition-colors"
+                className="flex items-center gap-2 hover:text-primary-800 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -48,7 +48,7 @@ export default function Footer() {
               </a>
               <a
                 href="tel:+420725441733"
-                className="flex items-center gap-2 hover:text-white transition-colors"
+                className="flex items-center gap-2 hover:text-primary-800 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -63,7 +63,7 @@ export default function Footer() {
                 href="https://www.facebook.com/monkeymumcom"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-primary-700 flex items-center justify-center hover:bg-primary-600 transition-colors"
+                className="w-9 h-9 rounded-full bg-primary-300 flex items-center justify-center hover:bg-primary-400 transition-colors text-primary-800"
                 title="Facebook"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -74,7 +74,7 @@ export default function Footer() {
                 href="https://www.instagram.com/monkeymum_com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-primary-700 flex items-center justify-center hover:bg-primary-600 transition-colors"
+                className="w-9 h-9 rounded-full bg-primary-300 flex items-center justify-center hover:bg-primary-400 transition-colors text-primary-800"
                 title="Instagram"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -87,7 +87,7 @@ export default function Footer() {
                 href="https://www.youtube.com/channel/UCKloZfKcTCx5PXRiZRatBWQ"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-primary-700 flex items-center justify-center hover:bg-primary-600 transition-colors"
+                className="w-9 h-9 rounded-full bg-primary-300 flex items-center justify-center hover:bg-primary-400 transition-colors text-primary-800"
                 title="YouTube"
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -99,7 +99,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-primary-700 pt-6 text-center text-xs text-primary-300">
+        <div className="border-t border-primary-300 pt-6 text-center text-xs text-primary-500">
           <p>&copy; 2020–2026 Monkey Mum s.r.o.</p>
         </div>
       </div>

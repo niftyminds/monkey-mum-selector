@@ -1,4 +1,5 @@
 import { FormStep } from '@/types/form';
+import { ProductType } from '@/types/product';
 
 export const LENGTH_OPTIONS = [80, 90, 100, 120, 130, 140, 150, 160, 180, 190, 200];
 
@@ -10,6 +11,78 @@ export const SLEEP_POSITION_SIDES_MAP: Record<string, number> = {
   'nevim': 1,
 };
 
+// ─── Product type ID legend ─────────────────────────────────────
+// 1=Popular, 2=Premium, 3=Economy, 4=Flip, 5=Smart, 6=Short,
+// 7=Bed Bumper, 8=Nová Zábrana, 9=Ohrádka, 10=Safety Gate,
+// 11=Postel se zábranou, 12=Dětská postýlka,
+// 13=Cestovní vak velký, 14=Cestovní vak malý,
+// 15=Cestovní vak na bed bumper, 16=Jídelní židlička
+
+export const TYPE_ID_MAP: Record<ProductType, number> = {
+  'Popular': 1,
+  'Premium': 2,
+  'Economy': 3,
+  'Flip': 4,
+  'Smart': 5,
+  'Short': 6,
+  'Bed Bumper': 7,
+  'Nová Zábrana': 8,
+  'Ohrádka': 9,
+  'Safety Gate': 10,
+  'Postel': 11,
+  'Postýlka': 12,
+  'Cestovní Vak': 13,
+  'Cestovní Vak Malý': 14,
+  'Cestovní Vak Bumper': 15,
+  'Židlička': 16,
+};
+
+// All type IDs for "any" / wildcard
+const ALL_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+
+// ─── Answer → allowed type IDs (from screenshot mapping) ────────
+export const ANSWER_ALLOWED_TYPES: Record<string, Record<string, number[]>> = {
+  bedType: {
+    'klasicka': [1, 2, 3, 4, 5, 7, 8],
+    'vyklopna': [1, 2, 3, 4, 5, 7, 8],
+    'boxspring': [1, 2, 3, 4, 5, 6, 7, 8],
+    'valenda': [11, 12],
+    'jiny': [1, 2, 3, 4, 5, 6, 7, 8],
+  },
+  // Q2 (sleepPosition) and Q3 (lengths) don't filter types
+  age: {
+    '0-3': [1, 2, 3, 4, 5, 6, 7, 8, 12],
+    '3-plus': [1, 2, 6, 7, 12],
+    'jine': ALL_IDS,
+  },
+  usage: {
+    'pouze-doma': [1, 2, 3, 4, 5, 6, 7, 8],
+    'doma-i-cesty': [1, 2, 6, 7, 8, 13, 14, 15],
+    'pouze-cesty': [7, 8, 13, 14, 15],
+    'jine': ALL_IDS,
+  },
+  priority: {
+    'bez-vrtani': [1, 2, 6, 7, 8],
+    'stabilita': [3, 4, 5],
+    'premium': [1, 2],
+    'pomer-cena-vykon': [1],
+    'nejnizsi-cena': [3, 5, 6],
+  },
+};
+
+// ─── Cross-sell: answer → product type IDs to recommend ─────────
+export const CROSS_SELL_TYPE_IDS: Record<string, number[]> = {
+  'schodiste': [10],
+  'dvere': [10],
+  'ohradka': [9],
+  'stolovani': [16],
+};
+
+// ─── Priority ordering within eligible types ────────────────────
+// When multiple types are eligible, prefer this order
+export const TYPE_PRIORITY_ORDER: number[] = [1, 2, 8, 4, 5, 7, 3, 6];
+
+// ─── Form steps ─────────────────────────────────────────────────
 export const FORM_STEPS: FormStep[] = [
   {
     id: 'bedType',
@@ -40,6 +113,7 @@ export const FORM_STEPS: FormStep[] = [
   {
     id: 'lengths',
     label: 'Jaká je délka strany (stran) k ochraně?',
+    description: 'Změřte prosím vnitřní rám postele, přesně tam, kam zapadá matrace.',
     type: 'multi-length',
     required: true,
     options: [
@@ -60,7 +134,7 @@ export const FORM_STEPS: FormStep[] = [
   },
   {
     id: 'usage',
-    label: 'Jak budete zábranu používat?',
+    label: 'Kde budete zábrany používat?',
     type: 'radio',
     required: true,
     options: [
@@ -76,24 +150,24 @@ export const FORM_STEPS: FormStep[] = [
     type: 'radio',
     required: true,
     options: [
-      { value: 'bez-vrtani', label: 'Bez vrtání', description: 'Snadná instalace bez poškození postele' },
-      { value: 'stabilita', label: 'Maximální stabilita', description: 'Nejpevnější uchycení' },
-      { value: 'premium', label: 'Prémiová kvalita', description: 'Nejlepší materiály a design' },
-      { value: 'pomer-cena-vykon', label: 'Poměr cena/výkon', description: 'Nejlepší hodnota za peníze' },
-      { value: 'nejnizsi-cena', label: 'Nejnižší cena', description: 'Co nejlevnější řešení' },
+      { value: 'bez-vrtani', label: 'Montáž bez vrtání / šroubování', description: 'Snadná instalace bez poškození postele' },
+      { value: 'stabilita', label: 'Maximální stabilita', description: 'Pevné uchycení šroubováním k posteli' },
+      { value: 'premium', label: 'Prémiové zpracování a dlouhá životnost', description: 'Nejlepší materiály a design' },
+      { value: 'pomer-cena-vykon', label: 'Nejlepší poměr cena/výkon', description: 'Nejlepší hodnota za peníze' },
+      { value: 'nejnizsi-cena', label: 'Nejnižší cena a základní ochrana', description: 'Co nejlevnější řešení' },
     ],
   },
   {
     id: 'crossSell',
-    label: 'Zajímá vás ještě něco dalšího? (volitelné)',
+    label: 'Řešíte ještě jiné zabezpečení doma? (volitelné)',
     type: 'checkbox',
     required: false,
     multiSelect: true,
     options: [
-      { value: 'schodiste', label: 'Zábrana na schodiště' },
-      { value: 'dvere', label: 'Zábrana do dveří' },
-      { value: 'ohradka', label: 'Dětská ohrádka' },
-      { value: 'stolovani', label: 'Židlička na stolování' },
+      { value: 'schodiste', label: 'Zábranu ke schodišti' },
+      { value: 'dvere', label: 'Zábranu do dveří' },
+      { value: 'ohradka', label: 'Bezpečný prostor (dětská ohrádka)' },
+      { value: 'stolovani', label: 'Bezpečné stolování' },
     ],
   },
 ];

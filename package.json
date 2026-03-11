@@ -28,5 +28,8 @@
     "react-dom": "^19.2.1",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
   }
 }

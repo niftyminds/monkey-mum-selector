@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FormData, SideLength, CrossSell } from '@/types/form';
 import { FORM_STEPS, SLEEP_POSITION_SIDES_MAP } from '@/lib/config';
+import { useIsEmbed } from './EmbedContext';
 import RadioGroup from './RadioGroup';
 import SelectField from './SelectField';
 import MultiLengthField from './MultiLengthField';
@@ -24,6 +25,7 @@ const initialFormData: FormData = {
 };
 
 export default function FormSection({ onComplete, onBack }: FormSectionProps) {
+  const isEmbed = useIsEmbed();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
 
@@ -95,11 +97,28 @@ export default function FormSection({ onComplete, onBack }: FormSectionProps) {
     }
   };
 
+  // Enter key to proceed to next step
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && canProceed()) {
+        e.preventDefault();
+        handleNext();
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentStep, formData]
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
+
   const progress = ((currentStep + 1) / FORM_STEPS.length) * 100;
   const currentValue = typeof formData[step.id] === 'string' ? (formData[step.id] as string) : '';
 
   return (
-    <div className="min-h-screen bg-primary-50 py-8 px-4">
+    <div className={`${isEmbed ? '' : 'min-h-screen'} bg-primary-50 py-8 px-4`}>
       <div className="max-w-xl mx-auto">
         {/* Progress bar */}
         <div className="mb-8">
@@ -111,7 +130,7 @@ export default function FormSection({ onComplete, onBack }: FormSectionProps) {
           </div>
           <div className="h-2 bg-primary-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-primary-500 transition-all duration-300 ease-out"
+              className="h-full bg-primary-300 transition-all duration-300 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -119,9 +138,13 @@ export default function FormSection({ onComplete, onBack }: FormSectionProps) {
 
         {/* Question card */}
         <div className="bg-white rounded-2xl shadow-sm border border-primary-200 p-6 sm:p-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-primary-800 mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-primary-800 mb-2">
             {step.label}
           </h2>
+          {step.description && (
+            <p className="text-sm text-primary-500 mb-6">{step.description}</p>
+          )}
+          {!step.description && <div className="mb-6" />}
 
           {/* Input */}
           <div className="mb-8">
@@ -194,7 +217,7 @@ export default function FormSection({ onComplete, onBack }: FormSectionProps) {
                 font-semibold rounded-lg
                 transition-all
                 ${canProceed()
-                  ? 'bg-primary-500 text-white hover:bg-primary-600 shadow-md hover:shadow-lg'
+                  ? 'bg-primary-300 text-primary-800 hover:bg-primary-400 shadow-md hover:shadow-lg'
                   : 'bg-primary-200 text-primary-400 cursor-not-allowed'
                 }
               `}
@@ -225,7 +248,7 @@ export default function FormSection({ onComplete, onBack }: FormSectionProps) {
               className={`
                 h-1.5 rounded-full transition-all duration-300
                 ${index === currentStep
-                  ? 'w-6 bg-primary-500'
+                  ? 'w-6 bg-primary-300'
                   : index < currentStep
                   ? 'w-1.5 bg-primary-300'
                   : 'w-1.5 bg-primary-200'

@@ -184,8 +184,8 @@ export default function LeadCaptureForm({
                   disabled={isSubmitting}
                   className="
                     w-full px-4 py-2.5 rounded-lg text-sm
-                    bg-primary-500 text-white font-semibold
-                    hover:bg-primary-600
+                    bg-primary-300 text-primary-800 font-semibold
+                    hover:bg-primary-400
                     disabled:bg-primary-200 disabled:cursor-not-allowed
                     transition-colors
                   "
@@ -224,10 +224,10 @@ export default function LeadCaptureForm({
       className={`
         fixed bottom-6 right-6 z-50
         flex items-center gap-2.5
-        bg-primary-500 text-white
+        bg-primary-300 text-primary-800
         pl-4 pr-5 py-3
-        rounded-full shadow-lg shadow-primary-500/30
-        hover:bg-primary-600 hover:shadow-xl hover:shadow-primary-500/40
+        rounded-full shadow-lg shadow-primary-300/40
+        hover:bg-primary-400 hover:shadow-xl hover:shadow-primary-400/40
         hover:-translate-y-0.5
         transition-all duration-300
         ${hasAnimated ? 'animate-bounce-subtle' : 'translate-y-20 opacity-0'}

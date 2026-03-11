@@ -4,6 +4,7 @@ import { FormData } from '@/types/form';
 import { RecommendationResult, SideRecommendation } from '@/lib/recommendations';
 import ProductCard from './ProductCard';
 import LeadCaptureForm from './LeadCaptureForm';
+import { useIsEmbed } from './EmbedContext';
 
 interface ResultsSectionProps {
   result: RecommendationResult;
@@ -46,15 +47,51 @@ const formatPrice = (price: number) => {
   }).format(price);
 };
 
+const CROSS_SELL_LABELS: Record<string, string> = {
+  'schodiste': 'Zábrana ke schodišti',
+  'dvere': 'Zábrana do dveří',
+  'ohradka': 'Bezpečnostní ohrádka',
+  'stolovani': 'Jídelní židlička',
+};
+
 export default function ResultsSection({ result, formData, onRestart }: ResultsSectionProps) {
-  const { sides, alternativeType, message, totalPrice } = result;
+  const isEmbed = useIsEmbed();
+  const { sides, alternativeType, crossSellProducts, message, totalPrice } = result;
   const grouped = groupSides(sides);
   const heroItem = grouped[0];
   const secondaryItems = grouped.slice(1);
 
+  const showPhotoNotice = ['boxspring', 'valenda', 'jiny'].includes(formData.bedType);
+
   return (
-    <div className="min-h-screen bg-primary-50 py-8 px-4">
+    <div className={`${isEmbed ? '' : 'min-h-screen'} bg-primary-50 py-8 px-4`}>
       <div className="max-w-4xl mx-auto">
+        {/* Photo notice for unusual bed types */}
+        {showPhotoNotice && (
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex gap-3">
+            <div className="flex-shrink-0 mt-0.5">
+              <svg className="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-amber-800">
+                Pro přesnější radu nám pošlete fotky vaší postele
+              </p>
+              <p className="text-sm text-amber-700 mt-1">
+                Váš typ postele může vyžadovat specifické řešení. Pošlete nám fotky na{' '}
+                <a
+                  href="mailto:informace@monkeymum.com"
+                  className="font-semibold underline hover:text-amber-900"
+                >
+                  informace@monkeymum.com
+                </a>
+                {' '}a my vám poradíme tu nejlepší zábranu.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
@@ -120,8 +157,25 @@ export default function ResultsSection({ result, formData, onRestart }: ResultsS
           </div>
         )}
 
+        {/* Cross-sell products */}
+        {crossSellProducts && crossSellProducts.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold text-primary-800 mb-4">Mohlo by se vám hodit</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {crossSellProducts.map((cs) => (
+                <div key={cs.category} className="relative">
+                  <span className="absolute -top-2 left-3 z-10 bg-primary-300 text-primary-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                    {CROSS_SELL_LABELS[cs.category] || cs.category}
+                  </span>
+                  <ProductCard product={cs.product} compact />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Restart */}
-        <div className="text-center pb-20">
+        <div className="text-center pb-8">
           <button
             onClick={onRestart}
             className="

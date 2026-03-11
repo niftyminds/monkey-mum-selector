@@ -29,7 +29,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         {children}
-        <Footer />
+        {/* <Footer /> */}
       </body>
     </html>
   );

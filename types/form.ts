@@ -29,6 +29,7 @@ export interface FormData {
 export interface FormStep {
   id: keyof FormData;
   label: string;
+  description?: string;
   type: 'radio' | 'select' | 'multi-length' | 'checkbox';
   options: FormOption[];
   required: boolean;
