@@ -87,7 +87,9 @@ function mapProductType(title, typeStr) {
   if (titleLower.includes('jídelní židlička') || titleLower.includes('židlička')) return 'Židlička';
   if (titleLower.includes('dětská postýlka') || titleLower.includes('postýlka')) return 'Postýlka';
   if (titleLower.includes('postel se zábranou')) return 'Postel';
-  if (titleLower.includes('bezpečnostní ohrádka') || titleLower.includes('ohrádka')) return 'Ohrádka';
+  // "Zábrana ... a ohrádka" je 2v1 produkt, NIE samostatná ohrádka
+  if ((titleLower.includes('bezpečnostní ohrádka') || titleLower.includes('ohrádka'))
+      && !titleLower.includes('zábrana')) return 'Ohrádka';
   if (titleLower.includes('safety gate')
     || titleLower.includes('bezpečnostní zábrana monkey mum® small')
     || titleLower.includes('bezpečnostní zábrana monkey mum® medium')

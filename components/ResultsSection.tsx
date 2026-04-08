@@ -153,7 +153,7 @@ export default function ResultsSection({ result, formData, onRestart }: ResultsS
         {alternativeType && (
           <div className="mb-8">
             <h2 className="text-lg font-semibold text-primary-800 mb-4">Alternativa</h2>
-            <ProductCard product={alternativeType} />
+            <ProductCard product={alternativeType} quantity={formData.lengths.length} />
           </div>
         )}
 

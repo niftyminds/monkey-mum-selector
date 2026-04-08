@@ -62,9 +62,9 @@ export const ANSWER_ALLOWED_TYPES: Record<string, Record<string, number[]>> = {
     'jine': ALL_IDS,
   },
   priority: {
-    'bez-vrtani': [1, 2, 6, 7, 8],
+    'bez-vrtani': [1, 2, 6, 7, 8, 11, 12],
     'stabilita': [3, 4, 5],
-    'premium': [1, 2],
+    'premium': [1, 2, 11, 12],
     'pomer-cena-vykon': [1],
     'nejnizsi-cena': [3, 5, 6],
   },
@@ -128,7 +128,7 @@ export const FORM_STEPS: FormStep[] = [
     required: true,
     options: [
       { value: '0-3', label: '0–3 roky', description: 'Miminko nebo batole' },
-      { value: '3-plus', label: '3+ roky', description: 'Předškolák a starší' },
+      { value: '3-plus', label: '3+ roky', description: 'Starší děti' },
       { value: 'jine', label: 'Jiné / nevím' },
     ],
   },
