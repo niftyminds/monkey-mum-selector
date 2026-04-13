@@ -246,16 +246,30 @@ describe('Length matching', () => {
 
 // ─── Alternative product tests ──────────────────────────────────
 
-describe('Alternative product', () => {
-  it('alternative is a different type than primary', () => {
+describe('Alternative products', () => {
+  it('alternatives are different types than primary', () => {
     const form = makeFormData();
     const result = getRecommendations(form, TEST_PRODUCTS);
 
-    if (result.alternativeType) {
-      expect(result.alternativeType.params.typeId).not.toBe(
-        result.sides[0].product.params.typeId
-      );
+    if (result.alternativeTypes.length > 0) {
+      for (const alt of result.alternativeTypes) {
+        expect(alt.params.typeId).not.toBe(
+          result.sides[0].product.params.typeId
+        );
+      }
     }
+  });
+
+  it('returns up to 3 alternatives from different types', () => {
+    const form = makeFormData({ priority: 'bez-vrtani' });
+    const result = getRecommendations(form, TEST_PRODUCTS);
+
+    expect(result.alternativeTypes.length).toBeLessThanOrEqual(3);
+
+    // All alternatives should be unique types
+    const typeIds = result.alternativeTypes.map((a) => a.params.typeId);
+    const uniqueTypeIds = new Set(typeIds);
+    expect(uniqueTypeIds.size).toBe(typeIds.length);
   });
 });
 

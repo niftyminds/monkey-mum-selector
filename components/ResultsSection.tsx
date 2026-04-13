@@ -56,7 +56,7 @@ const CROSS_SELL_LABELS: Record<string, string> = {
 
 export default function ResultsSection({ result, formData, onRestart }: ResultsSectionProps) {
   const isEmbed = useIsEmbed();
-  const { sides, alternativeType, crossSellProducts, message, totalPrice } = result;
+  const { sides, alternativeTypes, crossSellProducts, message, totalPrice } = result;
   const grouped = groupSides(sides);
   const heroItem = grouped[0];
   const secondaryItems = grouped.slice(1);
@@ -149,11 +149,21 @@ export default function ResultsSection({ result, formData, onRestart }: ResultsS
           </div>
         )}
 
-        {/* Alternative */}
-        {alternativeType && (
+        {/* Alternatives */}
+        {alternativeTypes && alternativeTypes.length > 0 && (
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-primary-800 mb-4">Alternativa</h2>
-            <ProductCard product={alternativeType} quantity={formData.lengths.length} />
+            <h2 className="text-lg font-semibold text-primary-800 mb-4">
+              {alternativeTypes.length === 1 ? 'Alternativa' : 'Alternativy'}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {alternativeTypes.map((alt, i) => (
+                <ProductCard
+                  key={`alt-${alt.id}-${i}`}
+                  product={alt}
+                  quantity={formData.lengths.length}
+                />
+              ))}
+            </div>
           </div>
         )}
 
@@ -206,7 +216,7 @@ export default function ResultsSection({ result, formData, onRestart }: ResultsS
       {/* Floating lead capture button */}
       <LeadCaptureForm
         sides={sides}
-        alternativeProduct={alternativeType}
+        alternativeProducts={alternativeTypes}
         formData={formData}
       />
     </div>

@@ -20,7 +20,7 @@ export interface CrossSellRecommendation {
 
 export interface RecommendationResult {
   sides: SideRecommendation[];
-  alternativeType: Product | null;
+  alternativeTypes: Product[];  // Up to 3 alternatives from different types
   crossSellProducts: CrossSellRecommendation[];
   message: string;
   totalPrice: number;
@@ -117,16 +117,36 @@ function findBestByLength(products: Product[], requestedLength: number): Product
 }
 
 /**
- * Find an alternative product from a different type than the primary.
+ * Find up to N alternative products from different types than the primary.
+ * Returns one product per alternative type, sorted by priority.
  */
-function findAlternative(
+function findAlternatives(
   eligible: Product[],
   primaryTypeId: number,
-  requestedLength: number
-): Product | null {
+  requestedLength: number,
+  maxAlternatives: number = 3
+): Product[] {
   const altProducts = eligible.filter((p) => p.params.typeId !== primaryTypeId);
   const sorted = sortByTypePriority(altProducts);
-  return findBestByLength(sorted, requestedLength);
+
+  const alternatives: Product[] = [];
+  const usedTypeIds = new Set<number>();
+
+  for (const product of sorted) {
+    if (alternatives.length >= maxAlternatives) break;
+    if (usedTypeIds.has(product.params.typeId)) continue;
+
+    // Find best product of this type for the requested length
+    const productsOfType = sorted.filter((p) => p.params.typeId === product.params.typeId);
+    const bestForLength = findBestByLength(productsOfType, requestedLength);
+
+    if (bestForLength) {
+      alternatives.push(bestForLength);
+      usedTypeIds.add(product.params.typeId);
+    }
+  }
+
+  return alternatives;
 }
 
 function generateMessage(primaryType: string, sideCount: number): string {
@@ -197,10 +217,10 @@ export function getRecommendations(formData: FormData, sourceProducts?: Product[
     }
   }
 
-  // Step 5: Find alternative from a different type
+  // Step 5: Find up to 3 alternatives from different types
   const primaryTypeId = sides.length > 0 ? sides[0].product.params.typeId : 1;
   const firstLength = sides.length > 0 ? sides[0].requestedLength : 150;
-  const alternativeType = findAlternative(eligible, primaryTypeId, firstLength);
+  const alternativeTypes = findAlternatives(eligible, primaryTypeId, firstLength, 3);
 
   // Step 6: Cross-sell products (from Q7)
   const crossSellProducts: CrossSellRecommendation[] = [];
@@ -222,7 +242,7 @@ export function getRecommendations(formData: FormData, sourceProducts?: Product[
 
   return {
     sides,
-    alternativeType,
+    alternativeTypes,
     crossSellProducts,
     message,
     totalPrice,

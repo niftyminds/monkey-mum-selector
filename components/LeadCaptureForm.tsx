@@ -8,14 +8,14 @@ import { generateTags, SideRecommendation } from '@/lib/recommendations';
 
 interface LeadCaptureFormProps {
   sides: SideRecommendation[];
-  alternativeProduct: Product | null;
+  alternativeProducts: Product[];
   formData: FormData;
   onSuccess?: () => void;
 }
 
 export default function LeadCaptureForm({
   sides,
-  alternativeProduct,
+  alternativeProducts,
   formData,
   onSuccess,
 }: LeadCaptureFormProps) {
@@ -60,7 +60,7 @@ export default function LeadCaptureForm({
       }
 
       const recommendedProductIds = sides.map((s) => s.product.id);
-      const alternativeProductIds = alternativeProduct ? [alternativeProduct.id] : [];
+      const alternativeProductIds = alternativeProducts.map((p) => p.id);
 
       const response = await fetch('/api/leads', {
         method: 'POST',
