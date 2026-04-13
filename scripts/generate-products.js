@@ -146,6 +146,11 @@ function shouldIncludeProduct(title, availability, productType) {
   if (availability !== 'in_stock') return false;
 
   const titleLower = title.toLowerCase();
+
+  // IMPORTANT: Only include Monkey Mum products - exclude all other brands
+  if (!titleLower.includes('monkey mum')) return false;
+
+  // Exclude unwanted item types
   for (const keyword of EXCLUDED_KEYWORDS) {
     if (titleLower.includes(keyword)) return false;
   }
@@ -160,6 +165,7 @@ function shouldIncludeProduct(title, availability, productType) {
     || titleLower.includes('safety gate')
     || titleLower.includes('židlička')
     || titleLower.includes('postýlka')
+    || titleLower.includes('postel')
     || titleLower.includes('cestovní vak');
 
   return hasValidType || recognizable;
