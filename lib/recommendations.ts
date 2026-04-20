@@ -41,14 +41,15 @@ function intersect(a: number[], b: number[]): number[] {
 
 /**
  * Compute the set of allowed product type IDs by intersecting
- * the allowed sets for each filtering question (Q1, Q4, Q5, Q6).
+ * the allowed sets for each filtering question (Q1, Q4, Q5).
+ * Note: Q6 (priority) is now optional and only boosts results, doesn't filter.
  */
 function computeAllowedTypeIds(formData: FormData): number[] {
   const filterKeys: Array<{ field: keyof typeof ANSWER_ALLOWED_TYPES; value: string }> = [
     { field: 'bedType', value: formData.bedType },
     { field: 'age', value: formData.age },
     { field: 'usage', value: formData.usage },
-    { field: 'priority', value: formData.priority },
+    // priority is no longer a filter - it's used for boosting results instead
   ];
 
   let allowed: number[] | null = null;
@@ -95,6 +96,25 @@ function sortByTypePriority(products: Product[]): Product[] {
     if (orderA !== orderB) return orderA - orderB;
     return a.price - b.price;
   });
+}
+
+/**
+ * Boost products that match the user's priority preference.
+ * Products matching the preference are moved to the front while
+ * maintaining relative order within each group.
+ */
+function boostByPriorityPreference(products: Product[], priority: string): Product[] {
+  if (!priority) return products;
+
+  const preferredTypeIds = ANSWER_ALLOWED_TYPES.priority?.[priority];
+  if (!preferredTypeIds || preferredTypeIds.length === 0) return products;
+
+  // Split into preferred and other products
+  const preferred = products.filter((p) => preferredTypeIds.includes(p.params.typeId));
+  const others = products.filter((p) => !preferredTypeIds.includes(p.params.typeId));
+
+  // Return preferred products first, then others
+  return [...preferred, ...others];
 }
 
 /**
@@ -199,8 +219,9 @@ export function getRecommendations(formData: FormData, sourceProducts?: Product[
     eligible = allProducts;
   }
 
-  // Step 3: Sort eligible products by type priority
-  const sorted = sortByTypePriority(eligible);
+  // Step 3: Sort eligible products by type priority, then boost by user's priority preference
+  let sorted = sortByTypePriority(eligible);
+  sorted = boostByPriorityPreference(sorted, formData.priority);
 
   // Step 4: For each side, find best product by length
   const sides: SideRecommendation[] = [];

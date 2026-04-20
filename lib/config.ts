@@ -146,9 +146,9 @@ export const FORM_STEPS: FormStep[] = [
   },
   {
     id: 'priority',
-    label: 'Co je pro vás nejdůležitější?',
+    label: 'Co je pro vás nejdůležitější? (volitelné)',
     type: 'radio',
-    required: true,
+    required: false,
     options: [
       { value: 'bez-vrtani', label: 'Montáž bez vrtání / šroubování', description: 'Snadná instalace bez poškození postele' },
       { value: 'stabilita', label: 'Maximální stabilita', description: 'Pevné uchycení šroubováním k posteli' },
