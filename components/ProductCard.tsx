@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Product } from '@/types/product';
+import { trackEvent } from '@/lib/tracking';
 
 interface ProductCardProps {
   product: Product;
@@ -72,6 +73,18 @@ export default function ProductCard({
     }
   };
 
+  const handleProductClick = () => {
+    trackEvent('product_clicked', {
+      productId: product.id,
+      productName: product.name,
+      productType: product.params.type,
+      productPrice: product.price,
+      productUrl: product.url,
+      position: compact ? 'cross-sell' : isPrimary ? 'primary' : 'alternative',
+      quantity: quantity ?? 1,
+    });
+  };
+
   // Compact variant for cross-sell / shopping list
   if (compact) {
     return (
@@ -104,6 +117,7 @@ export default function ProductCard({
                 href={addUtmParams(product.url)}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={handleProductClick}
                 className="inline-flex items-center px-3 py-1 rounded-lg font-medium text-xs bg-primary-100 text-primary-700 hover:bg-primary-200 transition-colors"
               >
                 Detail
@@ -221,6 +235,7 @@ export default function ProductCard({
               href={addUtmParams(product.url)}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={handleProductClick}
               className={`
                 inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors
                 ${isPrimary

@@ -3,20 +3,109 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Embed - Monkey Mum Kalkulačka</title>
+  <title>Test Embed - Monkey Mum Kalkulačka (s Tracking Monitorem)</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 40px 20px; background: #f5f5f5; }
-    h1 { text-align: center; color: #333; }
-    p { text-align: center; color: #666; margin-bottom: 30px; }
+    body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 40px 20px; background: #f5f5f5; }
+    h1 { text-align: center; color: #333; margin-bottom: 10px; }
+    .subtitle { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
+    .container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
     .embed-wrapper { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 20px; }
+    .tracking-panel { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 20px; position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; }
+    .tracking-panel h2 { margin-top: 0; color: #333; font-size: 18px; border-bottom: 2px solid #4CAF50; padding-bottom: 10px; }
+    .event-item { background: #f9f9f9; border-left: 4px solid #4CAF50; padding: 10px; margin-bottom: 10px; font-size: 13px; border-radius: 4px; }
+    .event-item .event-name { font-weight: bold; color: #4CAF50; margin-bottom: 5px; }
+    .event-item .event-data { color: #666; font-family: monospace; font-size: 11px; }
+    .event-counter { background: #4CAF50; color: white; padding: 4px 10px; border-radius: 12px; font-size: 12px; display: inline-block; margin-left: 10px; }
+    .instructions { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .instructions h3 { margin-top: 0; color: #856404; }
+    .instructions ol { margin: 0; padding-left: 20px; color: #856404; }
+    @media (max-width: 900px) {
+      .container { grid-template-columns: 1fr; }
+      .tracking-panel { position: relative; max-height: 400px; }
+    }
   </style>
 </head>
 <body>
   <h1>Monkey Mum E-shop (simulace)</h1>
-  <p>Níže je vložená kalkulačka přes embed script:</p>
-  <div class="embed-wrapper">
-    <div id="mm-calculator"></div>
-    <script src="/embed.js"></script>
+  <p class="subtitle">Test embed scriptu s GTM tracking monitorem</p>
+
+  <div class="instructions">
+    <h3>📊 Testování trackingu:</h3>
+    <ol>
+      <li>Otevři konzoli prohlížeče (F12) a sleduj <code>window.dataLayer</code></li>
+      <li>Začni vyplňovat konfigurátor → očekává se event <strong>configurator_started</strong></li>
+      <li>Dokonči všechny kroky → očekává se <strong>recommendation_shown</strong></li>
+      <li>Klikni na produkt → očekává se <strong>product_clicked</strong></li>
+      <li>Klikni "Začít znovu" → očekává se <strong>configurator_restarted</strong></li>
+    </ol>
   </div>
+
+  <div class="container">
+    <div class="embed-wrapper">
+      <div id="mm-calculator"></div>
+      <script src="/embed.js"></script>
+    </div>
+
+    <div class="tracking-panel">
+      <h2>
+        🎯 Tracking Eventy
+        <span class="event-counter" id="event-count">0</span>
+      </h2>
+      <div id="events-list">
+        <p style="color: #999; font-style: italic;">Čeká se na tracking eventy...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Inicializace dataLayer (jako by to udělal GTM)
+    window.dataLayer = window.dataLayer || [];
+
+    // Monitorování změn v dataLayer
+    const eventsList = document.getElementById('events-list');
+    const eventCount = document.getElementById('event-count');
+    let count = 0;
+
+    // Override push metody pro zachycení nových eventů
+    const originalPush = window.dataLayer.push;
+    window.dataLayer.push = function() {
+      const result = originalPush.apply(this, arguments);
+
+      // Zobraz nový event v panelu
+      Array.from(arguments).forEach(item => {
+        if (item.event && item.event.startsWith) {
+          count++;
+          eventCount.textContent = count;
+
+          const eventDiv = document.createElement('div');
+          eventDiv.className = 'event-item';
+
+          const eventName = document.createElement('div');
+          eventName.className = 'event-name';
+          eventName.textContent = `${count}. ${item.event}`;
+
+          const eventData = document.createElement('div');
+          eventData.className = 'event-data';
+          eventData.textContent = JSON.stringify(item.configurator || {}, null, 2);
+
+          eventDiv.appendChild(eventName);
+          eventDiv.appendChild(eventData);
+
+          if (count === 1) {
+            eventsList.innerHTML = '';
+          }
+          eventsList.insertBefore(eventDiv, eventsList.firstChild);
+
+          console.log('📊 DataLayer Push:', item);
+        }
+      });
+
+      return result;
+    };
+
+    // Log initial state
+    console.log('✅ Test embed page loaded');
+    console.log('✅ dataLayer initialized:', window.dataLayer);
+  </script>
 </body>
 </html>

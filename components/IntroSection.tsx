@@ -1,6 +1,7 @@
 'use client';
 
 import { useIsEmbed } from './EmbedContext';
+import { trackEvent } from '@/lib/tracking';
 
 interface IntroSectionProps {
   onStart: () => void;
@@ -8,6 +9,11 @@ interface IntroSectionProps {
 
 export default function IntroSection({ onStart }: IntroSectionProps) {
   const isEmbed = useIsEmbed();
+
+  const handleStart = () => {
+    trackEvent('configurator_started');
+    onStart();
+  };
 
   return (
     <div className="bg-primary-50">
@@ -62,7 +68,7 @@ export default function IntroSection({ onStart }: IntroSectionProps) {
 
           {/* CTA Button — Soft Gold */}
           <button
-            onClick={onStart}
+            onClick={handleStart}
             className="
               inline-flex items-center justify-center
               px-8 py-4 text-lg font-semibold

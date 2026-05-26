@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { FormData } from '@/types/form';
 import { RecommendationResult, SideRecommendation } from '@/lib/recommendations';
 import ProductCard from './ProductCard';
 import LeadCaptureForm from './LeadCaptureForm';
 import { useIsEmbed } from './EmbedContext';
+import { trackEvent } from '@/lib/tracking';
 
 interface ResultsSectionProps {
   result: RecommendationResult;
@@ -62,6 +64,41 @@ export default function ResultsSection({ result, formData, onRestart }: ResultsS
   const secondaryItems = grouped.slice(1);
 
   const showPhotoNotice = ['boxspring', 'valenda', 'jiny'].includes(formData.bedType);
+
+  // Track recommendation shown when component mounts (only once, even in React Strict Mode)
+  const hasTracked = useRef(false);
+  useEffect(() => {
+    if (hasTracked.current) return;
+    hasTracked.current = true;
+
+    trackEvent('recommendation_shown', {
+      primaryProduct: heroItem
+        ? {
+            id: heroItem.product.id,
+            name: heroItem.product.name,
+            type: heroItem.product.params.type,
+            price: heroItem.product.price,
+            quantity: heroItem.count,
+          }
+        : null,
+      secondaryProducts: secondaryItems.map(item => ({
+        id: item.product.id,
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.count,
+      })),
+      sidesCount: sides.length,
+      totalPrice: totalPrice,
+      bedType: formData.bedType,
+      alternativesCount: alternativeTypes?.length ?? 0,
+      crossSellCount: crossSellProducts?.length ?? 0,
+    });
+  }, []);
+
+  const handleRestart = () => {
+    trackEvent('configurator_restarted');
+    onRestart();
+  };
 
   return (
     <div className={`${isEmbed ? '' : 'min-h-screen'} bg-primary-50 py-8 px-4`}>
@@ -187,7 +224,7 @@ export default function ResultsSection({ result, formData, onRestart }: ResultsS
         {/* Restart */}
         <div className="text-center pb-8">
           <button
-            onClick={onRestart}
+            onClick={handleRestart}
             className="
               inline-flex items-center gap-2
               text-primary-600 font-medium
